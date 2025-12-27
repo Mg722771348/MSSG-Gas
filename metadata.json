@@ -1,0 +1,7 @@
+{
+  "name": "MSSG Gas And Electrical Services Ltd",
+  "description": "Professional gas and electrical engineering services in Portsmouth and Southampton. Gas Safe Registered 531530.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
