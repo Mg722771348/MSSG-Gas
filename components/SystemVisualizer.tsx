@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { generateSystemImage } from '../services/geminiService';
 
@@ -14,16 +15,22 @@ const SystemVisualizer: React.FC = () => {
   }, []);
 
   const checkKeyStatus = async () => {
-    // @ts-ignore
-    const status = await window.aistudio.hasSelectedApiKey();
-    setHasKey(status);
+    try {
+      const status = await window.aistudio.hasSelectedApiKey();
+      setHasKey(status);
+    } catch (e) {
+      console.warn("AI Studio key manager unavailable");
+    }
   };
 
   const handleOpenKeySelector = async () => {
-    // @ts-ignore
-    await window.aistudio.openSelectKey();
-    // Proceed assuming success as per guidelines
-    setHasKey(true);
+    try {
+      await window.aistudio.openSelectKey();
+      // Assume success as per Gemini guidelines to avoid race condition
+      setHasKey(true);
+    } catch (e) {
+      console.error("Failed to open key selector");
+    }
   };
 
   const handleGenerate = async () => {
@@ -64,7 +71,7 @@ const SystemVisualizer: React.FC = () => {
               Visualize Your <br /><span className="text-emerald-400 text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-blue-400">Future Plant Room.</span>
             </h2>
             <p className="text-slate-400 text-lg mb-8 leading-relaxed">
-              Use our cutting-edge AI to generate high-fidelity concepts of your new boiler installation or utility room layout. 
+              Use our cutting-edge AI to generate high-fidelity concepts of your new boiler installation. 
               <span className="block mt-2 text-sm text-slate-500 italic">Requires a paid Google Cloud project API key.</span>
             </p>
 
@@ -133,8 +140,8 @@ const SystemVisualizer: React.FC = () => {
             </div>
           </div>
 
-          <div className="relative group">
-            <div className="aspect-square bg-slate-950 rounded-[40px] overflow-hidden border border-white/10 shadow-3xl relative flex items-center justify-center group-hover:border-emerald-500/50 transition-colors">
+          <div className="relative">
+            <div className="aspect-square bg-slate-950 rounded-[40px] overflow-hidden border border-white/10 shadow-3xl relative flex items-center justify-center transition-colors">
               {imageUrl ? (
                 <img src={imageUrl} alt="AI Generated Installation" className="w-full h-full object-cover animate-in fade-in zoom-in-95 duration-700" />
               ) : (
@@ -142,7 +149,7 @@ const SystemVisualizer: React.FC = () => {
                    <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
                       <svg className="w-10 h-10 text-emerald-500/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 11l-8 8-4-4m0-4l8 8 4-4m-12-8l8 8 4-4" /></svg>
                    </div>
-                   <p className="text-slate-500 text-sm">Select your API key and provide a description to see your project visualised in high resolution.</p>
+                   <p className="text-slate-500 text-sm">Select your API key and provide a description to see your project visualised.</p>
                 </div>
               )}
               
@@ -158,7 +165,6 @@ const SystemVisualizer: React.FC = () => {
               )}
             </div>
             
-            {/* Resolution Tag */}
             {imageUrl && !loading && (
               <div className="absolute top-6 right-6 bg-brand-primary/80 backdrop-blur-md px-4 py-2 rounded-xl border border-white/20 text-white font-black text-xs">
                 PRO RENDER: {imageSize}
