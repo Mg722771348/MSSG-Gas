@@ -1,22 +1,19 @@
 import { GoogleGenAI } from "@google/genai";
 
 /**
- * General heating advice for the chat assistant
+ * Technical guidance for customers using Gemini 3 Flash
  */
 export const getHeatingAdvice = async (query: string) => {
-  // Always use process.env.API_KEY directly for initialization as per guidelines
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
     contents: query,
     config: {
-      systemInstruction: `You are an expert heating assistant for MSSG Gas And Electrical Services Ltd. 
-      Company: Based in Portsmouth and Southampton (UK).
-      Gas Safe Registered: 531530.
-      Specialists: Vaillant and Glowworm boilers.
-      Voice: Helpful, professional, and safety-conscious.
-      Important: Always tell users that only Gas Safe engineers should open a boiler.
-      Goal: Help with error codes and encourage using the contact form for a professional quote.`,
+      systemInstruction: `You are an expert technical consultant for MSSG Gas And Electrical Services Ltd.
+      Focus: Vaillant and Glowworm boilers.
+      Voice: Highly professional, direct, and safety-oriented.
+      Strict Safety: Always emphasize that boiler casings should only be removed by Gas Safe engineers.
+      Context: We serve the South Coast (Portsmouth/Southampton).`,
     },
   });
 
@@ -24,58 +21,16 @@ export const getHeatingAdvice = async (query: string) => {
 };
 
 /**
- * Specialized diagnostic info for error codes
- */
-export const getDiagnosticInfo = async (brand: string, code: string) => {
-  // Always use process.env.API_KEY directly for initialization as per guidelines
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const prompt = `A user has a ${brand} boiler displaying error code "${code}". 
-  Provide a simple, non-technical explanation for a homeowner.
-  State clearly if it is a "User Fix" or an "Engineer Required" issue.`;
-
-  const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
-    contents: prompt,
-    config: {
-      systemInstruction: "You are a boiler technical expert. Be concise and prioritize safety.",
-    },
-  });
-
-  return response.text;
-};
-
-/**
- * Optimizes the user's inquiry message to be more useful for the engineer
- */
-export const optimizeInquiry = async (message: string) => {
-  // Always use process.env.API_KEY directly for initialization as per guidelines
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const prompt = `Rewrite this customer message into a clear, professional service request: "${message}"`;
-
-  const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
-    contents: prompt,
-    config: {
-      systemInstruction: "Refine customer messages to be professional and technical for a gas engineer's work order.",
-    },
-  });
-
-  return response.text;
-};
-
-/**
- * Generates high-quality system images using gemini-3-pro-image-preview
+ * High-fidelity system visualization using Nano Banana Pro
  */
 export const generateSystemImage = async (prompt: string, size: '1K' | '2K' | '4K') => {
-  // Always create a new instance right before use for paid models to ensure latest API key
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  
   const response = await ai.models.generateContent({
     model: 'gemini-3-pro-image-preview',
     contents: {
       parts: [
         {
-          text: `Photorealistic high-quality architectural and engineering photograph of: ${prompt}. Clean, professional, well-lit, industrial design aesthetic.`,
+          text: `Professional engineering schematic and photograph: ${prompt}. Cinematic lighting, technical blueprint aesthetic, industrial quality.`,
         },
       ],
     },
@@ -83,18 +38,46 @@ export const generateSystemImage = async (prompt: string, size: '1K' | '2K' | '4
       imageConfig: {
         aspectRatio: "1:1",
         imageSize: size
-      },
-      // Using googleSearch as it's available for this model to improve realism/context
-      tools: [{ googleSearch: {} }],
+      }
     },
   });
 
   for (const part of response.candidates?.[0]?.content?.parts || []) {
-    // Find the image part, do not assume it is the first part.
     if (part.inlineData) {
       return `data:image/png;base64,${part.inlineData.data}`;
     }
   }
-  
-  throw new Error("No image was generated in the response.");
+  throw new Error("Visualization engine failed to render output.");
+};
+
+/**
+ * Optimizes user messages for technical work orders
+ */
+export const optimizeInquiry = async (message: string) => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: `Translate this homeowner issue into a professional technical service request: "${message}"`,
+    config: {
+      systemInstruction: "Convert messy descriptions into structured engineering work orders. Focus on technical terms (e.g., flow rate, heat exchanger, PCB).",
+    },
+  });
+
+  return response.text;
+};
+
+/**
+ * Direct diagnostic lookup for boiler error codes
+ */
+export const getDiagnosticInfo = async (brand: string, code: string) => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: `Identify ${brand} boiler code: ${code}. Simple fix or Engineer needed?`,
+    config: {
+      systemInstruction: "Provide a 2-sentence safety-first explanation of the error code.",
+    },
+  });
+
+  return response.text;
 };
