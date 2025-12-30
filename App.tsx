@@ -1,4 +1,5 @@
 import React from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import Navigation from './components/Navigation';
 import Hero from './components/Hero';
 import Services from './components/Services';
@@ -130,6 +131,7 @@ const App: React.FC = () => {
         </footer>
       </main>
       <AIAssistant />
+      <Analytics />
     </div>
   );
 };
